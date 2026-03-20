@@ -11,7 +11,7 @@ tárolt érték: 2 pointer
 
 ## Load gen
 
-paraméterek: adatpontok száma (std::size_t: n), seed (std::uint_fast32_t: s), tesztek száma (std::size_t: k)
+paraméterek: beszúrandó elemek száma (std::size_t: n), seed (std::uint_fast32_t: s), tesztek száma (std::size_t: k)
 
 random engine: rand = minstd_rand(s)
 
@@ -25,20 +25,22 @@ for i in 0..n: data.push_back(i)
 
 data = std::shuffle(data.first(), data.last(), rand)
 
-bint = bintree(data)
-bint_cont = bintree_cont(data)
+bint = BinTree(data)
+bint_cont = BinTreeCont(data)
 
 map = std::map\<std::int_fast32_t,  Node>()
 
 for i in data: map.insert({i, Node(0, 0)})
 
-## Keresés szimulálása
+## Keresés szimulálása, benchmark
+
+Keretrendszer: [nanobench](https://nanobench.ankerl.com/)
 
 tests =  vector\<std::int_fast32_t>
 
 tests.reseve(k)
  
-for i in k: tests.push_back(rand())
+for i in k: tests.push_back(data\[rand()%data.size()])
  
 for t in tests: measure and record search times
 
