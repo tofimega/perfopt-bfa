@@ -40,7 +40,7 @@ rand = Rng(ts)
 
 tests =  vector\<int64_t>
 
-tests.reseve(k)
+tests.reseve(min(n, k))
  
 for i in k: tests.push_back(data\[rand()%data.size()])
  
@@ -53,14 +53,13 @@ for t in tests: measure and record search times
 -  Node
 	- left, right pointer
 
-- IBinTree: közös iface
-	- TODO
-
 - BinTree:
 	- Node:  root
 	
 	- Constr(&std::vector\<int64_t> data): sorban beszúrja a számokat a fába
 	- Destr(): törli a fát postorder módon
+
+	- find(int64_t value) -> Node
 
 	- egy Node pointerei közv a gyerekekre mutatnak
 	- a Node-ok közv a heapen vannak
@@ -68,6 +67,8 @@ for t in tests: measure and record search times
 - BinTreeCont:
 	- Node: root
 	- std::vector\<Node> tree
+
+	- find(int64_t value) -> Node
 
 	- Constr(&std::vector\<int64_t> data): sorban beszúrja a számokat a fába és a tree vector-ba
 	- Destr(): törléskor a tree vector megoldja
