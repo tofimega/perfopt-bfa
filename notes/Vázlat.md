@@ -5,7 +5,7 @@ nyelv: c++
 
 cél: keresési idő tesztelése
 
-kulcs: int64_t
+kulcs: uint64_t
 
 tárolt érték: 2 pointer
 
@@ -15,20 +15,21 @@ paraméterek: beszúrandó elemek száma (std::size_t: n), seed (uint64_t: s)
 
 random engine: rand = Rng(s)
 
-data = std::vector\<int64_t>()
+data = std::vector\<uint64_t>()
 
 n = min(n, data.max_size())
 
 data.reserve(n)
 
-for i in 0..n: data.push_back((int64_t) rand())
+for i in 0..n: data.push_back(i)
+rand.shuffle()
 
 bint = BinTree(data)
 bint_cont = BinTreeCont(data)
 
-map = std::map\<int64_t,  Node>()
+map = std::map\<uint64_t,  Node>()
 
-for i in data: map.insert({i, Node(0, 0)})
+for i in data: map.insert({i, Node(i, 0, 0)})
 
 ## Keresés szimulálása, benchmark
 
@@ -37,26 +38,21 @@ paraméterek:  tesztek száma (std::size_t: k), teszt seed (uint64_t: ts)
 Keretrendszer: [nanobench](https://nanobench.ankerl.com/)
 
 rand = Rng(ts)
-
-tests =  vector\<int64_t>
-
-tests.reseve(min(n, k))
  
-for i in k: tests.push_back(data\[rand()%data.size()])
- 
-for t in tests: measure and record search times
+for i in 0..k: pick from data, search
 
 ## Fák
 
 - a fák nem módosíthatóak
 
 -  Node
-	- left, right pointer
+	- Node\* left, right
+	- uint64_t value
 
 - BinTree:
 	- Node:  root
 	
-	- Constr(&std::vector\<int64_t> data): sorban beszúrja a számokat a fába
+	- Constr(&std::vector\<uint64_t> data): sorban beszúrja a számokat a fába
 	- Destr(): törli a fát postorder módon
 
 	- find(int64_t value) -> Node
@@ -70,7 +66,7 @@ for t in tests: measure and record search times
 
 	- find(int64_t value) -> Node
 
-	- Constr(&std::vector\<int64_t> data): sorban beszúrja a számokat a fába és a tree vector-ba
+	- Constr(&std::vector\<uint64_t> data): sorban beszúrja a számokat a fába és a tree vector-ba
 	- Destr(): törléskor a tree vector megoldja
 
 	- egy Node pointer-ei offset a tree vector-ba
