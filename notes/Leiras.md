@@ -5,7 +5,7 @@ nyelv: c++
 
 cél: keresési idő tesztelése
 
-kulcs: size_t
+kulcs: int64_t
 
 tárolt érték: 2 pointer
 
