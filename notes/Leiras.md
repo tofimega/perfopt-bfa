@@ -11,8 +11,7 @@ tárolt érték: 2 pointer
 
 ## Load gen
 
-paraméterek: beszúrandó elemek száma (std::size_t: n), seed (uint64_t: s), tesztek száma (std::size_t: k)
-
+paraméterek: beszúrandó elemek száma (std::size_t: n), seed (uint64_t: s)
 
 random engine: rand = Rng(s)
 
@@ -22,9 +21,7 @@ n = min(n, data.max_size())
 
 data.reserve(n)
 
-for i in 0..n: data.push_back(i)
-
-data = rand.shuffle(data)
+for i in 0..n: data.push_back((int64_t) rand())
 
 bint = BinTree(data)
 bint_cont = BinTreeCont(data)
@@ -35,7 +32,11 @@ for i in data: map.insert({i, Node(0, 0)})
 
 ## Keresés szimulálása, benchmark
 
+paraméterek:  tesztek száma (std::size_t: k), teszt seed (uint64_t: ts)
+
 Keretrendszer: [nanobench](https://nanobench.ankerl.com/)
+
+rand = Rng(ts)
 
 tests =  vector\<int64_t>
 
@@ -47,8 +48,10 @@ for t in tests: measure and record search times
 
 ## Fák
 
+- a fák nem módosíthatóak
+
 -  Node
-	- left, right pointers
+	- left, right pointer
 
 - IBinTree: közös iface
 	- TODO
