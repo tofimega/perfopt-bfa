@@ -29,7 +29,7 @@ bint_cont = BinTreeCont(data)
 
 map = std::map\<uint64_t,  Node>()
 
-for i in data: map.insert({i, Node(i, 0, 0)})
+for i in data: map.insert({i, Node(0, 0)})
 
 ## Keresés szimulálása, benchmark
 
@@ -43,16 +43,15 @@ for i in 0..k: pick from data, search
 
 ## Fák
 
-- a fák nem módosíthatóak
+- a fák nem módosíthatók
 
 -  Node
-	- Node\* left, right
-	- uint64_t value
+	- std::pair\<uint64_t, Node>\* left, right
 
 - BinTree:
 	- Node:  root
 	
-	- Constr(&std::vector\<uint64_t> data): sorban beszúrja a számokat a fába
+	- Constr(&std::vector\<uint64_t> data): sorban létrehoz Node-okat a heap-en és beszúrja a őket a fába
 	- Destr(): törli a fát postorder módon
 
 	- find(int64_t value) -> Node
@@ -62,12 +61,11 @@ for i in 0..k: pick from data, search
 
 - BinTreeCont:
 	- Node: root
-	- std::vector\<Node> tree
+	- std::vector\<std::pair\<uint64_t, Node>> tree
 
 	- find(int64_t value) -> Node
 
 	- Constr(&std::vector\<uint64_t> data): sorban beszúrja a számokat a fába és a tree vector-ba
 	- Destr(): törléskor a tree vector megoldja
 
-	- egy Node pointer-ei offset a tree vector-ba
 	- a Node-ok folytonosan vannak tárolva a tree vector-ban
