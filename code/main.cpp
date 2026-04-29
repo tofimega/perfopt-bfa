@@ -128,7 +128,10 @@ public:
 
 
 
-void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed){
+void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed, uint64_t test_count){
+    cout << "tree size: " << nodes << "\nseed for generting nodes: " << gen_seed << "\nseed for random searches: " << test_seed << "\nnumber of tests: " << test_count << "\n";
+
+
     vector<uint64_t> keys;
     keys.reserve(nodes);
 
@@ -141,6 +144,10 @@ void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed){
     map<uint64_t, Node> map_data;
     for (keytype k : keys) map_data.insert(std::pair(k, Node(k)));
 
+
+    unordered_map<uint64_t, Node> umap_data;
+    for (keytype k : keys) umap_data.insert(std::pair(k, Node(k)));
+
     BinTree tree_data(keys);
     BinTreeCont cont_data(keys);
 
@@ -151,13 +158,25 @@ void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed){
 
     Node* res;
     keytype search;
-    ankerl::nanobench::Bench bench = ankerl::nanobench::Bench().title("Search Time Benchmark").unit("nodes").batch(nodes).name("map test").run(
+    ankerl::nanobench::Bench bench = ankerl::nanobench::Bench().title("Search Time Benchmark").minEpochIterations(test_count).unit("nodes").batch(nodes).name("map test").run(
         [&]{
             search = test_rand_map()%nodes;
             ankerl::nanobench::doNotOptimizeAway(res = &map_data[search]);
         });
 
         cout << "Map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\n";
+
+ankerl::nanobench::Rng test_rand_umap(test_seed);
+
+ bench.name("unordered map test").run( 
+        [&]{
+            search = test_rand_umap()%nodes;
+             ankerl::nanobench::doNotOptimizeAway(res = &umap_data[search]);
+        });
+
+        cout << "Unordered map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\n";
+
+
   ankerl::nanobench::Rng test_rand_tree(test_seed);
 
         bench.name("simple bintree test").run( 
@@ -188,14 +207,14 @@ int main(int argc, char* argv[]) {
     cout << "Beginning execution\n";
     
     if (argc == 1){
-        test(10000, 10000, 10000);
+        test(10000, 10000, 10000, 1000000);
     }
-    else if (argc == 4){
+    else if (argc == 5){
         size_t nodes = stoul(argv[1]);
         uint64_t gen_seed = stoul(argv[2]);
         uint64_t test_seed = stoul(argv[3]);
-
-        test(nodes, gen_seed, test_seed);
+        uint64_t test_count = stoul(argv[4]);
+        test(nodes, gen_seed, test_seed, test_count);
     }
     else cerr << "Invalid input\n";
 
