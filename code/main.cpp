@@ -1,7 +1,12 @@
 #include <iostream>
 #include <vector>
+#include <set>
 #include <map>
 #include <string>
+
+#ifndef ANKERL_NANOBENCH_IMPLEMENT
+#define ANKERL_NANOBENCH_IMPLEMENT
+#endif
 
 #include "nanobench.h"
 
@@ -153,49 +158,109 @@ void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed, uint64_t test_cou
 
     ankerl::nanobench::Rng test_rand_map(test_seed);
   
+    cout << "\n beginning map test...\n";
 
-
-
+uint64_t x =0;
     Node* res;
     keytype search;
-    ankerl::nanobench::Bench bench = ankerl::nanobench::Bench().title("Search Time Benchmark").minEpochIterations(test_count).unit("nodes").batch(nodes).name("map test").run(
+    
+    ankerl::nanobench::Bench bench = ankerl::nanobench::Bench().title("Search Time Benchmark").warmup(1000).minEpochIterations(test_count).unit("search").batch(1).name("map test").run(
         [&]{
-            search = test_rand_map()%nodes;
-            ankerl::nanobench::doNotOptimizeAway(res = &map_data[search]);
-        });
+            //search = test_rand_map()%nodes;res = &map_data[search]; x+=res->key;
 
-        cout << "Map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\n";
+                search = test_rand_map()%nodes;
+                res = &map_data[search];
+                x+=res->key;
+                ankerl::nanobench::doNotOptimizeAway(test_rand_map);
+                ankerl::nanobench::doNotOptimizeAway(res);
+                ankerl::nanobench::doNotOptimizeAway(search);
+                ankerl::nanobench::doNotOptimizeAway(x);
+             //   cout << "search key: " << search << " node key: "  << ((res == nullptr) ? -1 : res->key);
+                
+                
+        });
+        cout << "\nMap test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;
 
 ankerl::nanobench::Rng test_rand_umap(test_seed);
+x=0;
 
+cout << "\n beginning umap test...\n";
  bench.name("unordered map test").run( 
         [&]{
-            search = test_rand_umap()%nodes;
-             ankerl::nanobench::doNotOptimizeAway(res = &umap_data[search]);
+                search = test_rand_umap()%nodes;
+                res = &umap_data[search];
+                x+=res->key;
+                ankerl::nanobench::doNotOptimizeAway(test_rand_umap);
+                ankerl::nanobench::doNotOptimizeAway(res);
+                ankerl::nanobench::doNotOptimizeAway(search);
+                ankerl::nanobench::doNotOptimizeAway(x);
+             //ankerl::nanobench::doNotOptimizeAway([&]{search = test_rand_umap()%nodes;res = &umap_data[search];x+=res->key;});
         });
 
-        cout << "Unordered map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\n";
+        cout << "\nUnordered map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;;
+
+
+
+        cout << "\n rehashing map...\n";
+cout << "\n beginning deep umap test...\n";
+ankerl::nanobench::Rng test_rand_dmap(test_seed);
+
+umap_data.max_load_factor(nodes);
+umap_data.rehash(1);
+x=0;
+ bench.name("deep umap test").run( 
+        [&]{
+            search = test_rand_dmap()%nodes;
+                res = &umap_data[search];
+                x+=res->key;
+                ankerl::nanobench::doNotOptimizeAway(test_rand_dmap);
+                ankerl::nanobench::doNotOptimizeAway(res);
+                ankerl::nanobench::doNotOptimizeAway(search);
+                ankerl::nanobench::doNotOptimizeAway(x);
+            // ankerl::nanobench::doNotOptimizeAway([&]{search = test_rand_dmap()%nodes;res = &umap_data[search];x+=res->key;});
+        });
+
+        cout << "\nDeep unordered map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;;
+
 
 
   ankerl::nanobench::Rng test_rand_tree(test_seed);
+x=0;
+
+cout << "\n beginning tree test...\n";
 
         bench.name("simple bintree test").run( 
         [&]{
-            search = test_rand_tree()%nodes;
-             ankerl::nanobench::doNotOptimizeAway(res = tree_data.Search(search));
+                search = test_rand_tree()%nodes;
+                res = tree_data.Search(search);
+                x+=res->key;
+                ankerl::nanobench::doNotOptimizeAway(test_rand_tree);
+                ankerl::nanobench::doNotOptimizeAway(res);
+                ankerl::nanobench::doNotOptimizeAway(search);
+                ankerl::nanobench::doNotOptimizeAway(x);
+             //ankerl::nanobench::doNotOptimizeAway([&]{search = test_rand_tree()%nodes;res = tree_data.Search(search);x+=res->key;});
         });
 
-        cout << "Simple binary tree test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\n";
+        cout << "\nSimple binary tree test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;;
 
+x=0;
 
+cout << "\n beginning contree test...\n";
     ankerl::nanobench::Rng test_rand_cont(test_seed);
         bench.name("continuous bintree test").run(
         [&]{
-            search = test_rand_cont()%nodes;
-             ankerl::nanobench::doNotOptimizeAway(res = tree_data.Search(search));
+                search = test_rand_cont()%nodes;
+                res = tree_data.Search(search);
+                x+=res->key;
+                ankerl::nanobench::doNotOptimizeAway(test_rand_cont);
+                ankerl::nanobench::doNotOptimizeAway(res);
+                ankerl::nanobench::doNotOptimizeAway(search);
+                ankerl::nanobench::doNotOptimizeAway(x);
+             //ankerl::nanobench::doNotOptimizeAway([&]{search = test_rand_cont()%nodes;res = cont_data.Search(search);x+=res->key;});
+             
         });
 
-        cout << "Continuous binary tree test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\n";
+        cout << "Continuous binary tree test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;;
 
 
        // vector<ankerl::nanobench::Result> results = bench.results();
@@ -207,7 +272,7 @@ int main(int argc, char* argv[]) {
     cout << "Beginning execution\n";
     
     if (argc == 1){
-        test(10000, 10000, 10000, 1000000);
+        test(100000, 10000, 10000, 1000000);
     }
     else if (argc == 5){
         size_t nodes = stoul(argv[1]);
