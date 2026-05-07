@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <set>
 #include <map>
@@ -133,8 +134,13 @@ public:
 
 
 
-void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed, uint64_t test_count){
-    cout << "tree size: " << nodes << "\nseed for generting nodes: " << gen_seed << "\nseed for random searches: " << test_seed << "\nnumber of tests: " << test_count << "\n";
+void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed, uint64_t test_count, uint64_t deep_map_depth,  string outfile){
+    cout << "tree size: " << nodes
+     << "\nseed for generting nodes: " << gen_seed
+      << "\nseed for random searches: " << test_seed
+       << "\nnumber of tests: " << test_count
+        << "\ndeep umap depth: " << deep_map_depth
+         << "\n\n outputting to: " << outfile << std::endl;
 
 
     vector<uint64_t> keys;
@@ -158,7 +164,7 @@ void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed, uint64_t test_cou
 
     ankerl::nanobench::Rng test_rand_map(test_seed);
   
-    cout << "\n beginning map test...\n";
+    cout << "\n beginning map test..." << std::endl;
 
 uint64_t x =0;
     Node* res;
@@ -179,12 +185,12 @@ uint64_t x =0;
                 
                 
         });
-        cout << "\nMap test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;
+        cout << "\nMap test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x << std::endl;
 
 ankerl::nanobench::Rng test_rand_umap(test_seed);
 x=0;
 
-cout << "\n beginning umap test...\n";
+cout << " beginning umap test..." << std::endl;
  bench.name("unordered map test").run( 
         [&]{
                 search = test_rand_umap()%nodes;
@@ -197,16 +203,17 @@ cout << "\n beginning umap test...\n";
              //ankerl::nanobench::doNotOptimizeAway([&]{search = test_rand_umap()%nodes;res = &umap_data[search];x+=res->key;});
         });
 
-        cout << "\nUnordered map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;;
+        cout << "\nUnordered map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x << std::endl;
 
 
 
-        cout << "\n rehashing map...\n";
-cout << "\n beginning deep umap test...\n";
+        cout << " rehashing map..." << std::endl;
+        umap_data.max_load_factor(nodes);
+umap_data.rehash(deep_map_depth);
+cout << "\n beginning deep umap test..." << std::endl;
 ankerl::nanobench::Rng test_rand_dmap(test_seed);
 
-umap_data.max_load_factor(nodes);
-umap_data.rehash(1);
+
 x=0;
  bench.name("deep umap test").run( 
         [&]{
@@ -220,14 +227,14 @@ x=0;
             // ankerl::nanobench::doNotOptimizeAway([&]{search = test_rand_dmap()%nodes;res = &umap_data[search];x+=res->key;});
         });
 
-        cout << "\nDeep unordered map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;;
+        cout << "\nDeep unordered map test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x << std::endl;
 
 
 
   ankerl::nanobench::Rng test_rand_tree(test_seed);
 x=0;
 
-cout << "\n beginning tree test...\n";
+cout << " beginning tree test..." << std::endl;
 
         bench.name("simple bintree test").run( 
         [&]{
@@ -241,11 +248,11 @@ cout << "\n beginning tree test...\n";
              //ankerl::nanobench::doNotOptimizeAway([&]{search = test_rand_tree()%nodes;res = tree_data.Search(search);x+=res->key;});
         });
 
-        cout << "\nSimple binary tree test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;;
+        cout << "\nSimple binary tree test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x << std::endl;
 
 x=0;
 
-cout << "\n beginning contree test...\n";
+cout << " beginning contree test..." << std::endl;
     ankerl::nanobench::Rng test_rand_cont(test_seed);
         bench.name("continuous bintree test").run(
         [&]{
@@ -260,11 +267,12 @@ cout << "\n beginning contree test...\n";
              
         });
 
-        cout << "Continuous binary tree test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x;;
+        cout << "Continuous binary tree test finished, last search key: " << search << " last node key: "  << ((res == nullptr) ? -1 : res->key) << "\nx: "<<x << std::endl;
 
-
-       // vector<ankerl::nanobench::Result> results = bench.results();
-       // bench.render(ankerl::nanobench::templates::json(), cout);
+        ofstream res_out(outfile);
+        vector<ankerl::nanobench::Result> results = bench.results();
+        bench.render(ankerl::nanobench::templates::json(), res_out);
+        res_out.close();
 }
 
 
@@ -272,14 +280,16 @@ int main(int argc, char* argv[]) {
     cout << "Beginning execution\n";
     
     if (argc == 1){
-        test(100000, 10000, 10000, 1000000);
+        test(100000, 10000, 10000, 1000000, 1000, "results_default.json");
     }
-    else if (argc == 5){
+    else if (argc == 7){
+
         size_t nodes = stoul(argv[1]);
         uint64_t gen_seed = stoul(argv[2]);
         uint64_t test_seed = stoul(argv[3]);
         uint64_t test_count = stoul(argv[4]);
-        test(nodes, gen_seed, test_seed, test_count);
+        uint64_t dmap_depth = stoul(argv[5]);
+        test(nodes, gen_seed, test_seed, test_count, dmap_depth, argv[6]);
     }
     else cerr << "Invalid input\n";
 
