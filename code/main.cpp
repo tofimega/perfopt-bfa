@@ -156,13 +156,13 @@ public:
     }
 };
 
-void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed, uint64_t test_count, uint64_t deep_map_depth, string outfile)
+void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed, uint64_t test_count, uint64_t deep_map_bucket_count, string outfile)
 {
     cout << "tree size: " << nodes
-         << "\nseed for generting nodes: " << gen_seed
+         << "\nseed for generating nodes: " << gen_seed
          << "\nseed for random searches: " << test_seed
          << "\nnumber of tests: " << test_count
-         << "\ndeep umap depth: " << deep_map_depth
+         << "\ndeep umap bucket count: " << deep_map_bucket_count
          << "\n\n outputting to: " << outfile << std::endl;
 
     vector<uint64_t> keys;
@@ -239,7 +239,7 @@ void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed, uint64_t test_cou
 
     cout << " rehashing map..." << std::endl;
     umap_data.max_load_factor(nodes);
-    umap_data.rehash(deep_map_depth);
+    umap_data.rehash(deep_map_bucket_count);
     cout << "\n beginning deep umap test..." << std::endl;
     ankerl::nanobench::Rng test_rand_dmap(test_seed);
 
@@ -322,8 +322,8 @@ int main(int argc, char *argv[])
         uint64_t gen_seed = stoul(argv[2]);
         uint64_t test_seed = stoul(argv[3]);
         uint64_t test_count = stoul(argv[4]);
-        uint64_t dmap_depth = stoul(argv[5]);
-        test(nodes, gen_seed, test_seed, test_count, dmap_depth, argv[6]);
+        uint64_t dmp_buckets = stoul(argv[5]);
+        test(nodes, gen_seed, test_seed, test_count, dmp_buckets, argv[6]);
     }
     else
         cerr << "Invalid input\n";
