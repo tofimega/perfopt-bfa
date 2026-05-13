@@ -240,6 +240,7 @@ void test(size_t nodes, uint64_t gen_seed, uint64_t test_seed, uint64_t test_cou
     cout << " rehashing map..." << std::endl;
     umap_data.max_load_factor(nodes);
     umap_data.rehash(deep_map_bucket_count);
+
     cout << "\n beginning deep umap test..." << std::endl;
     ankerl::nanobench::Rng test_rand_dmap(test_seed);
 
